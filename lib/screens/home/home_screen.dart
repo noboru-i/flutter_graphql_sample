@@ -1,68 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:fluttergraphqlsample/data/api/graphql_api_client.dart';
+import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:fluttergraphqlsample/generated/graphql_api.graphql.dart';
+import 'package:fluttergraphqlsample/screens/home/home_state.dart';
+import 'package:fluttergraphqlsample/screens/home/home_state_notifier.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  List<List$Query$Post> posts = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    _init();
-  }
-
-  Future<void> _init() async {
-    final client = GraphqlApiClient();
-
-    final query = ListQuery();
-    final result = await client.query(query);
-    final data = query.parse(result.data);
-    setState(() {
-      posts = data.posts;
-    });
-  }
-
-  Future<void> _upvote(int postId) async {
-    final client = GraphqlApiClient();
-
-    final query = UpvotePostMutation(
-      variables: UpvotePostArguments(
-        postId: postId,
-      ),
-    );
-    final result = await client.mutate(query);
-    final data = query.parse(result.data);
-    print('data = ${data.upvotePost.toJson()}');
-
-    _init();
-  }
-
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Sample'),
-      ),
-      body: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (context, index) => _buildListItem(index),
+    return StateNotifierProvider<HomeStateNotifier, HomeState>(
+      create: (_) => HomeStateNotifier(),
+      lazy: false,
+      builder: (context, _) => Scaffold(
+        appBar: AppBar(
+          title: Text('Sample'),
+        ),
+        body: _List(),
       ),
     );
   }
+}
 
-  Widget _buildListItem(int index) {
-    final item = posts[index];
+class _List extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final posts = context.select((HomeState state) => state.posts);
+    return ListView.builder(
+      itemCount: posts.length,
+      itemBuilder: (context, index) => _buildListItem(context, posts[index]),
+    );
+  }
+
+  Widget _buildListItem(BuildContext context, List$Query$Post item) {
     return ListTile(
       title: Text(item.title),
       trailing: Text('vote: ${item.votes}'),
       onTap: () {
-        _upvote(item.id);
+        context.read<HomeStateNotifier>().upvote(item.id);
       },
     );
   }

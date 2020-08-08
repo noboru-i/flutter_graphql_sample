@@ -4,6 +4,15 @@ targets:
       - lib/**
       - graphql/**
     builders:
+      freezed:
+        generate_for:
+          include:
+            - lib/**/*state.dart
+      json_serializable:
+        generate_for:
+          include:
+            - lib/**/*state.dart
+            - lib/generated/*
       artemis:
         generate_for:
           include:
