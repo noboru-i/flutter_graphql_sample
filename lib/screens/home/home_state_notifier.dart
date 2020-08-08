@@ -12,7 +12,7 @@ class HomeStateNotifier extends StateNotifier<HomeState> with LocatorMixin {
   }
 
   Future<void> _fetch() async {
-    final client = GraphqlApiClient();
+    final client = read<GraphqlApiClient>();
 
     final query = ListQuery();
     final result = await client.query(query);
@@ -22,7 +22,7 @@ class HomeStateNotifier extends StateNotifier<HomeState> with LocatorMixin {
   }
 
   Future<void> upvote(int postId) async {
-    final client = GraphqlApiClient();
+    final client = read<GraphqlApiClient>();
 
     final query = UpvotePostMutation(
       variables: UpvotePostArguments(

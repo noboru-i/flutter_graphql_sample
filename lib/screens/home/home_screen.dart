@@ -24,7 +24,8 @@ class HomeScreen extends StatelessWidget {
 class _List extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final posts = context.select((HomeState state) => state.posts);
+//    final posts = context.select((HomeState state) => state.posts);
+    final posts = context.watch<HomeState>().posts;
     return ListView.builder(
       itemCount: posts.length,
       itemBuilder: (context, index) => _buildListItem(context, posts[index]),
